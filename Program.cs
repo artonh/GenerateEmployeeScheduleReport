@@ -15,7 +15,8 @@ namespace GenerateEmployeeScheduleReport
         static void Main(string[] args)
         {
             try
-            {
+            {            
+
                 if (args != null && args.Any())
                 {
                     rm = new ResourceManager("GenerateEmployeeScheduleReport.Resources.Resources", typeof(Program).Assembly);
@@ -32,11 +33,13 @@ namespace GenerateEmployeeScheduleReport
                     WorkingHours wschedule;
 
                     int lastCheckedMonth = startDate.Month;
+                    bool newYear = false;
 
                     strOutput.AppendLine(string.Format(GetFromResource("Title"), arg.EmployeeName, DateTime.Now.Year));
 
                     strOutput.AppendLine(startDate.ToString("MMMM").ToUpper());
 
+                    var currentYear = startDate.Year;
 
                     foreach (var day in EachDay(startDate, checkDate))
                     {
@@ -48,10 +51,23 @@ namespace GenerateEmployeeScheduleReport
                             if (lastCheckedMonth != day.Month)
                             {
                                 strOutput.AppendLine(Environment.NewLine);
-                                strOutput.AppendLine(day.ToString("MMMM").ToUpper());
+                                
+                                if (currentYear != day.Year || newYear)
+                                {
+                                    currentYear = day.Year;
+                                    newYear = true;
+
+                                    strOutput.AppendLine("(" + currentYear +") "+ day.ToString("MMMM").ToUpper());
+                                }
+                                else
+                                    strOutput.AppendLine(day.ToString("MMMM").ToUpper());
+
                                 lastCheckedMonth = day.Month;
                             }
-                            strOutput.Append(string.Format("{0}:{1}! -------", day.Day, (result == WorkingType.Day ? GetFromResource("DayShift") : GetFromResource("NightShift"))));
+
+                            string outputResult = string.Format("{0}:{1}", day.Day.ToString("00"), (result == WorkingType.Day ? GetFromResource("DayShift") : GetFromResource("NightShift")));
+                            strOutput.Append(outputResult);
+                            strOutput.Append("\t");
                         }
 
                     }
